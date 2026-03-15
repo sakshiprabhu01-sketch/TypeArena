@@ -1,0 +1,205 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+
+body{
+  background:#02023c;
+  color:white;
+  margin:0;
+  font-family:'JetBrains Mono', monospace;
+}
+
+/* PAGE LAYOUT */
+
+.practice-page{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+
+  min-height:100vh;
+
+  padding-top:40px;
+}
+
+/* HEADING */
+
+.title{
+  font-size:40px;
+  color:#3d7cce;
+
+  position:fixed;
+  top:22px;
+  left:0;
+  right:0;
+
+  margin:0;
+  padding:14px 0;
+
+  text-align:center;
+
+  background:#02023c;
+  z-index:100;
+}
+
+/* MAIN CONTAINER */
+
+.practice-box{
+  width:100%;
+  max-width:90%;
+
+  margin-top:90px;
+}
+
+/* TIMER */
+
+#timer{
+  font-size:36px;
+  color:#bfce3d;
+
+  margin-bottom:15px;
+}
+
+/* TEXT DISPLAY */
+
+#text-display{
+  font-size:26px;
+
+  padding:25px;
+
+  border-radius:18px;
+
+  border:2px solid rgba(57,88,190,0.25);
+
+  display:flex;
+  flex-wrap:wrap;
+
+  line-height:1.7;
+}
+
+/* CHARACTERS */
+
+.char{
+  white-space:pre;
+}
+
+/* CORRECT */
+
+.correct{
+  color:#4caf50;
+}
+
+/* WRONG */
+
+.wrong{
+  color:#f44336;
+  background:rgba(244,67,54,0.15);
+  border-radius:3px;
+}
+
+/* CURRENT CHAR */
+
+.active{
+  border-bottom:2px solid yellow;
+}
+
+/* INPUT ROW */
+
+.input-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+
+  margin-top:25px;
+}
+
+/* INPUT BOX */
+
+#input{
+  width:60%;
+
+  height:42px;
+
+  font-size:20px;
+
+  border-radius:10px;
+
+  border:1px solid rgba(60,81,150,0.7);
+
+  padding:6px 12px;
+
+  background:#184168;
+  color:white;
+}
+
+/* START BUTTON */
+
+#start{
+  margin-top:0;
+
+  padding:12px 28px;
+
+  font-size:18px;
+
+  border-radius:12px;
+
+  border:none;
+
+  background:#3d7cce;
+  color:white;
+
+  cursor:pointer;
+
+  transition:0.2s;
+}
+
+#start:hover{
+  background:#2e63a6;
+}
+
+/* DISABLED START */
+
+#start:disabled{
+  background:gray;
+  cursor:not-allowed;
+  opacity:0.7;
+}
+
+/* RESULT SCREEN */
+
+.result{
+  text-align:center;
+
+  padding:40px;
+  margin-left: 450px;
+  margin-top: 80px;
+ 
+
+  border-radius:20px;
+
+  background:linear-gradient(#758edf,#386dbd,#0b31b1);
+
+  width:900px;
+
+ 
+}
+
+.result h2{
+  margin-bottom:20px;
+}
+
+.result button{
+  margin-top:20px;
+
+  padding:12px 28px;
+
+  font-size:18px;
+
+  border-radius:12px;
+
+  border:none;
+
+  background:#3d7cce;
+  color:white;
+
+  cursor:pointer;
+}

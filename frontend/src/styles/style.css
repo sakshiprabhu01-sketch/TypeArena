@@ -1,0 +1,120 @@
+/* ===== HOME PAGE ===== */
+
+.home-page {
+  min-height: 100vh;
+  background: radial-gradient(
+    ellipse at 25% 25%,
+    #1a2f6e 0%,
+    #07093a 55%,
+    #020220 100%
+  );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* ===== GLASS CARD ===== */
+
+.home-card {
+  width: min(480px, 88vw);
+  padding: 52px 44px;
+  border-radius: 22px;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+
+  text-align: center;
+}
+
+.home-card h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.home-card p {
+  margin: 0 0 32px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+/* ===== ACTION BUTTONS ===== */
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+#practice-btn,
+#battle-btn {
+  padding: 11px 28px;
+  font-size: 15px;
+  font-weight: 600;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #3a6fd8;
+  color: #ffffff;
+
+  cursor: pointer;
+
+  transition: background 0.2s, transform 0.15s;
+}
+
+#practice-btn:hover,
+#battle-btn:hover {
+  background: #2e5cbf;
+  transform: translateY(-1px);
+}
+
+/* ===== PROFILE BUTTON ===== */
+
+.profile-btn {
+  position: fixed;
+  top: 22px;
+  right: 28px;
+  z-index: 1000;
+
+  width: 50px;
+  height: 50px;
+
+  border-radius: 50%;
+
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  color: white;
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.profile-btn:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+}
+
+.profile-btn .material-symbols-outlined {
+  font-size: 26px;
+  opacity: 0.9;
+}

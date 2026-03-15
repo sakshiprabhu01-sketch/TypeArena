@@ -1,0 +1,218 @@
+.hidden{
+  display:none;
+}
+
+body{
+  background-color: rgb(2 2 60 / 91%);
+  color:white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ================= MAIN CONTAINER ================= */
+
+.battle-container{
+  text-align:center;
+  padding:120px 40px 40px;
+  min-height:100vh;
+}
+
+.battle-container > h1{
+  position:fixed;
+  top:22px;
+  left:0;
+  right:0;
+  margin:0;
+  padding:14px 0;
+  text-align:center;
+  color:#3d7cce;
+  background:rgb(2 2 60 / 91%);
+  z-index:100;
+}
+
+.battle-container.lobby-view{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+/* ================= LOBBY ================= */
+
+.lobby{
+  width:min(750px, 90vw);
+  position:fixed;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  margin:0;
+  padding:40px;
+  border-radius:25px;
+
+  background: linear-gradient(145deg,#1b2b5a,#0d1c3d);
+
+  box-shadow:0 0 25px rgba(0,0,0,0.6);
+}
+
+.battle-container.lobby-view .lobby{
+  margin:0;
+}
+
+/* ================= CARDS ================= */
+
+.card{
+  background:#14295a;
+  padding:25px;
+  border-radius:20px;
+  margin:25px 0;
+  box-shadow:0 0 15px rgba(0,0,0,0.4);
+}
+
+/* ================= BUTTONS ================= */
+
+button{
+  padding:12px 25px;
+  font-size:18px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  margin:10px;
+  transition:all .2s ease;
+}
+
+button:not(:disabled):hover{
+  transform:scale(1.05);
+}
+
+button:disabled{
+  background:#555;
+  color:white;
+}
+
+.copy-btn{
+  background:#2f77d1;
+  color:white;
+}
+
+.copy-btn:hover{
+  background:#1e5fae;
+}
+
+.ready-btn{
+  background:#3a7bd5;
+  color:white;
+}
+
+.ready-btn:hover{
+  background:#2b63af;
+}
+
+.start-btn{
+  background:#4b8fe8;
+  color:white;
+}
+
+.start-btn:not(:disabled):hover{
+  background:#3576cc;
+}
+
+/* ================= INVITE ================= */
+
+.lobby input{
+  width:350px;
+  padding:10px;
+  border-radius:10px;
+  border:1px solid rgba(60,81,150,0.699);
+  background:#184168;
+  color:white;
+}
+
+/* ================= COUNTDOWN ================= */
+
+.countdown{
+  font-size:70px;
+  font-weight:bold;
+  color:#bfce3d;
+}
+
+/* ================= TIMER ================= */
+
+.timer{
+  font-size:35px;
+  font-weight:600;
+  color:#bfce3d;
+}
+
+/* ================= TEXT DISPLAY ================= */
+
+.text-display{
+  font-size:30px;
+  margin-bottom:20px;
+  padding:30px;
+  border-radius:25px;
+  border:2px solid rgba(57,88,190,0.164);
+  font-family:'JetBrains Mono', monospace;
+  font-weight:600;
+  line-height:1.6;
+}
+
+/* ================= TYPING COLORS ================= */
+
+.char{
+  white-space:pre;
+}
+
+.correct{
+  color:#4caf50;
+}
+
+.active{
+  border-bottom:2px solid #dae480;
+}
+
+.wrong{
+  color:#f44336;
+  background-color:rgba(244,67,54,0.15);
+  border-radius:3px;
+}
+
+/* ================= INPUT ================= */
+
+.race-area input{
+  width:50%;
+  height:35px;
+  font-size:20px;
+  border-radius:10px;
+  border:1px solid rgba(60,81,150,0.699);
+  padding:5px 10px;
+  background:#184168;
+  color:white;
+  margin-top:25px;
+}
+
+/* ================= PROGRESS BARS ================= */
+
+.progress-bar{
+  width:400px;
+  height:20px;
+  background:#14295a;
+  margin:10px auto;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.progress{
+  height:100%;
+  background:#4caf50;
+}
+
+.progress.opponent{
+  background:#ff5722;
+}
+
+/* ================= RESULT ================= */
+
+.winner{
+  font-size:40px;
+  margin-top:20px;
+  color:gold;
+}
