@@ -4,29 +4,11 @@ import "../styles/battle.css";
 import { socket } from "../socket/socket";
 
 const wordList = [
-  "time",
-  "people",
-  "world",
-  "life",
-  "day",
-  "practice",
-  "typing",
-  "speed",
-  "focus",
-  "skill",
-  "give",
-  "fun",
-  "which",
-  "what",
-  "know",
-  "learn",
-  "improve",
-  "keyboard",
-  "accuracy",
-  "game",
-  "the",
-  "her",
-  "because",
+  "time","people","world","life","day",
+  "practice","typing","speed","focus","skill",
+  "give","fun","which","what","know",
+  "learn","improve","keyboard","accuracy","game",
+  "the","her","because",
 ];
 
 function generateText(wordCount = 80) {
@@ -50,7 +32,6 @@ function Battle() {
   const [countdown, setCountdown] = useState(null);
 
   const [input, setInput] = useState("");
-
   const [myProgress, setMyProgress] = useState(0);
   const [opponentProgress, setOpponentProgress] = useState(0);
 
@@ -66,39 +47,34 @@ function Battle() {
 
   const { roomId: urlRoomId = "" } = useParams();
 
-  const startCountdown = useCallback(function startCountdown(serverText) {
-
+  // ----------------------
+  // COUNTDOWN
+  // ----------------------
+  const startCountdown = useCallback((serverText) => {
     let time = 3;
-
     setCountdown(time);
 
     const interval = setInterval(() => {
-
       time--;
 
       if (time > 0) {
-
         setCountdown(time);
-
       } else {
-
         setCountdown("GO!");
 
         setTimeout(() => {
-
           setCountdown(null);
           renderText(serverText);
-
         }, 800);
 
         clearInterval(interval);
-
       }
-
     }, 1000);
-
   }, []);
 
+  // ----------------------
+  // SOCKET EVENTS (🔥 FIXED)
+  // ----------------------
   useEffect(() => {
 
     socket.on("connect", () => {
@@ -126,7 +102,7 @@ function Battle() {
     });
 
     socket.on("opponent-finished", () => {
-      if (!winner) setWinner("Opponent");
+      setWinner("Opponent");
     });
 
     if (urlRoomId) {
@@ -144,42 +120,32 @@ function Battle() {
       socket.off("opponent-finished");
     };
 
-  }, [urlRoomId, winner, startCountdown]);
+  }, []); // ✅ IMPORTANT FIX
 
-
-
+  // ----------------------
+  // TIMER
+  // ----------------------
   useEffect(() => {
-
     if (!timerRunning) return;
 
     const timer = setInterval(() => {
-
       setTimeLeft((prev) => {
-
         if (prev <= 1) {
-
           clearInterval(timer);
           setTimerRunning(false);
-
-          if (!winner) {
-            setWinner("Time Up");
-          }
-
+          if (!winner) setWinner("Time Up");
           return 0;
         }
-
         return prev - 1;
-
       });
-
     }, 1000);
 
     return () => clearInterval(timer);
-
   }, [timerRunning, winner]);
 
-
-
+  // ----------------------
+  // SOCKET ACTIONS
+  // ----------------------
   function createRoom() {
     socket.emit("create-room");
   }
@@ -192,12 +158,11 @@ function Battle() {
     socket.emit("start", roomId);
   }
 
-
-
+  // ----------------------
+  // RENDER TEXT
+  // ----------------------
   function renderText(text) {
-
     const container = document.getElementById("text-display");
-
     if (!container) return;
 
     container.innerHTML = "";
@@ -205,14 +170,11 @@ function Battle() {
     const characters = text.split("");
 
     const newSpans = characters.map((char) => {
-
       const span = document.createElement("span");
       span.classList.add("char");
       span.innerText = char;
       container.appendChild(span);
-
       return span;
-
     });
 
     if (newSpans.length > 0) {
@@ -222,40 +184,15 @@ function Battle() {
     setSpans(newSpans);
     setCurrentIndex(0);
 
-    if (!hasCountedBattleRef.current) {
-      const currentCount = Number(localStorage.getItem("typearena.battlesPlayed") || "0");
-      const safeCount = Number.isFinite(currentCount) && currentCount >= 0 ? Math.floor(currentCount) : 0;
-      const nextCount = safeCount + 1;
-
-      localStorage.setItem("typearena.battlesPlayed", String(nextCount));
-
-      const storedProfile = localStorage.getItem("typearena.profile");
-      if (storedProfile) {
-        try {
-          const parsedProfile = JSON.parse(storedProfile);
-          const nextProfile = {
-            ...parsedProfile,
-            battlesPlayed: nextCount,
-          };
-          localStorage.setItem("typearena.profile", JSON.stringify(nextProfile));
-        } catch {
-          // Ignore invalid profile payload and keep counter as source of truth.
-        }
-      }
-
-      hasCountedBattleRef.current = true;
-    }
-
     setStartTime(Date.now());
     setTimeLeft(60);
     setTimerRunning(true);
-
   }
 
-
-
+  // ----------------------
+  // TYPING
+  // ----------------------
   function handleTyping(e) {
-
     if (!timerRunning) return;
 
     const value = e.target.value;
@@ -285,96 +222,64 @@ function Battle() {
     setCurrentIndex(nextIndex);
 
     const progress = Math.floor((nextIndex / spans.length) * 100);
-
     setMyProgress(progress);
 
-    socket.emit("progress", {
-      roomId,
-      progress
-    });
-
+    socket.emit("progress", { roomId, progress });
 
     const timeElapsed = (Date.now() - startTime) / 1000;
     const wordsTyped = nextIndex / 5;
-
     const currentWpm = Math.round((wordsTyped / timeElapsed) * 60);
 
     setWpm(currentWpm);
 
-
     if (nextIndex === spans.length) {
-
-      socket.emit("finish", {
-        roomId,
-        wpm: currentWpm
-      });
-
+      socket.emit("finish", { roomId, wpm: currentWpm });
       setWinner("You");
       setTimerRunning(false);
-
     }
-
   }
-
-
 
   const inviteLink = `${window.location.origin}/battle/${roomId}`;
 
-
-
   return (
-
     <div className={`battle-container ${roomId && !battleStarted ? "lobby-view" : ""}`}>
 
       <h1>TypeArena Battle</h1>
 
       {!roomId && (
-        <button onClick={createRoom}>
-          Generate Invite
-        </button>
+        <button onClick={createRoom}>Generate Invite</button>
       )}
 
-
       {roomId && !battleStarted && (
-
         <div className="lobby">
-
           <div className="card">
 
             <h2>Battle Lobby</h2>
 
             <p><strong>Room ID:</strong> {roomId}</p>
 
-            <p><strong>Invite Link:</strong></p>
-
             <input value={inviteLink} readOnly />
 
-            <br/>
-
             <button
-              className="copy-btn"
               onClick={() => {
                 navigator.clipboard.writeText(inviteLink);
-                alert("Invite link copied!");
+                alert("Copied!");
               }}
             >
               Copy Invite
             </button>
 
-            <hr/>
-
             {roomData && (
               <>
-                <p>Host: {roomData.hostReady ? "✅ Ready" : "❌ Not Ready"}</p>
-                <p>Guest: {roomData.guestReady ? "✅ Ready" : "❌ Not Ready"}</p>
+                <p>Host: {roomData.hostReady ? "✅" : "❌"}</p>
+                <p>Guest: {roomData.guestReady ? "✅" : "❌"}</p>
               </>
             )}
 
-            <button className="ready-btn" onClick={ready}>Ready</button>
+            <button onClick={ready}>Ready</button>
 
             {role === "host" && (
               <button
-                className="start-btn"
                 disabled={!roomData || !roomData.hostReady || !roomData.guestReady}
                 onClick={startBattle}
               >
@@ -383,70 +288,33 @@ function Battle() {
             )}
 
           </div>
-
         </div>
-
       )}
 
-
-
       {battleStarted && (
-
         <div className="race-area">
 
-          <h2 className="timer">Time Left: {timeLeft}s</h2>
+          <h2>Time Left: {timeLeft}s</h2>
 
-          {countdown && (
-            <div className="countdown">{countdown}</div>
-          )}
+          {countdown && <div>{countdown}</div>}
 
-          <div id="text-display" className="text-display"></div>
+          <div id="text-display"></div>
 
           <input
-            type="text"
             value={input}
             onChange={handleTyping}
             placeholder="Start typing..."
           />
 
-          <h3>Your WPM: {wpm}</h3>
+          <h3>WPM: {wpm}</h3>
 
-          {winner && (
-            <h2 className="winner">
-              {winner === "You"
-                ? "🏆 You Win!"
-                : winner === "Opponent"
-                ? "😢 You Lose"
-                : "⏰ Time Up"}
-            </h2>
-          )}
-
-          <h3>You</h3>
-
-          <div className="progress-bar">
-            <div
-              className="progress"
-              style={{ width: `${myProgress}%` }}
-            ></div>
-          </div>
-
-          <h3>Opponent</h3>
-
-          <div className="progress-bar">
-            <div
-              className="progress opponent"
-              style={{ width: `${opponentProgress}%` }}
-            ></div>
-          </div>
+          {winner && <h2>{winner}</h2>}
 
         </div>
-
       )}
 
     </div>
-
   );
-
 }
 
 export default Battle;
