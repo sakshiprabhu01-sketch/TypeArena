@@ -6,16 +6,10 @@ const cors = require("cors");
 const app = express();
 
 // ----------------------
-// CORS
+// 🔥 CORS (FINAL FIX)
 // ----------------------
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://type-arena-puce.vercel.app"
-];
-
 app.use(cors({
-  origin: allowedOrigins,
-  methods: ["GET", "POST"],
+  origin: true,        // ✅ allow all origins (important for Railway)
   credentials: true
 }));
 
@@ -25,18 +19,18 @@ app.use(cors({
 const server = http.createServer(app);
 
 // ----------------------
-// SOCKET.IO (NO FORCE WEBSOCKET)
+// SOCKET.IO
 // ----------------------
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: true,      // ✅ allow all origins
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
 // ----------------------
-// ROOMS
+// ROOMS STORAGE
 // ----------------------
 const rooms = {};
 
@@ -67,7 +61,7 @@ function generateText(wordCount = 100) {
 // ----------------------
 io.on("connection", (socket) => {
 
-  console.log("Connected:", socket.id);
+  console.log("User connected:", socket.id);
 
   // CREATE ROOM
   socket.on("create-room", () => {
@@ -128,9 +122,16 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("Disconnected:", socket.id);
+    console.log("User disconnected:", socket.id);
   });
 
+});
+
+// ----------------------
+// ROOT ROUTE (IMPORTANT)
+// ----------------------
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
 });
 
 // ----------------------
