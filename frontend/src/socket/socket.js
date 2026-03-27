@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-export const socket = io("https://typearena-production.up.railway.app", {
+export const socket = io("https://typearena-backend-akog.onrender.com", {
   transports: ["polling", "websocket"] // 🔥 REQUIRED
 });
 
