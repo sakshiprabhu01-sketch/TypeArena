@@ -1,14 +1,15 @@
 import { io } from "socket.io-client";
 
 export const socket = io("https://typearena-production.up.railway.app", {
-  transports: ["polling", "websocket"], // ✅ VERY IMPORTANT
+  transports: ["polling", "websocket"], // 🔥 DO NOT REMOVE
   withCredentials: true
 });
 
+// Debug logs
 socket.on("connect", () => {
-  console.log("Connected:", socket.id);
+  console.log("✅ Connected:", socket.id);
 });
 
 socket.on("connect_error", (err) => {
-  console.log("Connection Error:", err.message);
+  console.log("❌ Connection Error:", err.message);
 });
