@@ -5,7 +5,9 @@ const cors = require("cors");
 
 const app = express();
 
-// 🔥 GLOBAL ERROR HANDLER (IMPORTANT)
+// ----------------------
+// GLOBAL ERROR HANDLER
+// ----------------------
 process.on("uncaughtException", (err) => {
   console.error("Uncaught Exception:", err);
 });
@@ -15,15 +17,18 @@ process.on("unhandledRejection", (err) => {
 });
 
 // ----------------------
-// CORS
+// CORS (🔥 FIXED)
 // ----------------------
 app.use(cors({
-  origin: true,
+  origin: [
+    "http://localhost:5173", // local
+    "https://your-frontend.vercel.app" // 🔥 CHANGE THIS
+  ],
   credentials: true
 }));
 
 // ----------------------
-// HEALTH ROUTE
+// ROUTE
 // ----------------------
 app.get("/", (req, res) => {
   res.send("Server is running 🚀");
@@ -35,14 +40,19 @@ app.get("/", (req, res) => {
 const server = http.createServer(app);
 
 // ----------------------
-// SOCKET.IO
+// SOCKET.IO (🔥 FIXED)
 // ----------------------
 const io = new Server(server, {
   cors: {
-    origin: true,
+    origin: [
+      "http://localhost:5173",
+      "https://type-arena-puce.vercel.app"
+
+    ],
     methods: ["GET", "POST"],
     credentials: true
-  }
+  },
+  transports: ["websocket"] // 🔥 IMPORTANT
 });
 
 // ----------------------
@@ -51,59 +61,53 @@ const io = new Server(server, {
 const rooms = {};
 
 // ----------------------
-// SAFE SOCKET HANDLER
+// SOCKET HANDLING
 // ----------------------
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
-  try {
+  socket.on("create-room", () => {
+    const roomId = Math.random().toString(36).substring(2, 8);
 
-    socket.on("create-room", () => {
-      const roomId = Math.random().toString(36).substring(2, 8);
+    rooms[roomId] = {
+      host: socket.id,
+      guest: null,
+      hostReady: false,
+      guestReady: false,
+      text: ""
+    };
 
-      rooms[roomId] = {
-        host: socket.id,
-        guest: null,
-        hostReady: false,
-        guestReady: false,
-        text: ""
-      };
+    socket.join(roomId);
+    socket.emit("room-created", roomId);
+    io.to(roomId).emit("room-update", rooms[roomId]);
+  });
 
-      socket.join(roomId);
-      socket.emit("room-created", roomId);
-      io.to(roomId).emit("room-update", rooms[roomId]);
-    });
+  socket.on("join-room", (roomId) => {
+    if (!rooms[roomId]) return;
 
-    socket.on("join-room", (roomId) => {
-      if (!rooms[roomId]) return;
+    rooms[roomId].guest = socket.id;
+    socket.join(roomId);
 
-      rooms[roomId].guest = socket.id;
-      socket.join(roomId);
+    io.to(roomId).emit("room-update", rooms[roomId]);
+  });
 
-      io.to(roomId).emit("room-update", rooms[roomId]);
-    });
+  socket.on("ready", ({ roomId, role }) => {
+    if (!rooms[roomId]) return;
 
-    socket.on("ready", ({ roomId, role }) => {
-      if (!rooms[roomId]) return;
+    if (role === "host") rooms[roomId].hostReady = true;
+    if (role === "guest") rooms[roomId].guestReady = true;
 
-      if (role === "host") rooms[roomId].hostReady = true;
-      if (role === "guest") rooms[roomId].guestReady = true;
+    io.to(roomId).emit("room-update", rooms[roomId]);
+  });
 
-      io.to(roomId).emit("room-update", rooms[roomId]);
-    });
+  socket.on("start", (roomId) => {
+    if (!rooms[roomId]) return;
 
-    socket.on("start", (roomId) => {
-      if (!rooms[roomId]) return;
+    const text = "typing game test text";
+    rooms[roomId].text = text;
 
-      const text = "typing game test text";
-      rooms[roomId].text = text;
-
-      io.to(roomId).emit("battle-start", text);
-    });
-
-  } catch (err) {
-    console.error("Socket Error:", err);
-  }
+    io.to(roomId).emit("battle-start", text);
+  });
 
   socket.on("disconnect", () => {
     console.log("Disconnected:", socket.id);
@@ -111,7 +115,7 @@ io.on("connection", (socket) => {
 });
 
 // ----------------------
-// PORT (🔥 IMPORTANT)
+// PORT (🔥 REQUIRED)
 // ----------------------
 const PORT = process.env.PORT || 5000;
 
