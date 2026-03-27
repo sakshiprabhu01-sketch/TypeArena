@@ -6,41 +6,58 @@ const cors = require("cors");
 const app = express();
 
 // ----------------------
-// CORS (FIXED)
+// ✅ ALLOWED ORIGINS
+// ----------------------
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://type-arena-puce.vercel.app"
+];
+
+// ----------------------
+// ✅ CORS FIX (VERY IMPORTANT)
 // ----------------------
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://type-arena-puce.vercel.app"
-  ],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed: " + origin));
+    }
+  },
   credentials: true
 }));
 
+// ----------------------
+// TEST ROUTE
 // ----------------------
 app.get("/", (req, res) => {
   res.send("Server is running 🚀");
 });
 
 // ----------------------
+// SERVER
+// ----------------------
 const server = http.createServer(app);
 
 // ----------------------
-// SOCKET.IO (FIXED)
+// SOCKET.IO (CORS FIXED)
 // ----------------------
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:5173",
-      "https://type-arena-puce.vercel.app"
-    ],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
 // ----------------------
+// ROOMS
+// ----------------------
 const rooms = {};
 
+// ----------------------
+// SOCKET LOGIC
+// ----------------------
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -92,6 +109,8 @@ io.on("connection", (socket) => {
   });
 });
 
+// ----------------------
+// PORT (RAILWAY SAFE)
 // ----------------------
 const PORT = process.env.PORT || 5000;
 
