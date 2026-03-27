@@ -1,11 +1,10 @@
 import { io } from "socket.io-client";
 
 export const socket = io("https://typearena-production.up.railway.app", {
-  transports: ["websocket"], // 🔥 IMPORTANT
+  transports: ["polling", "websocket"], // ✅ VERY IMPORTANT
   withCredentials: true
 });
 
-// Debug logs (VERY useful)
 socket.on("connect", () => {
   console.log("Connected:", socket.id);
 });
