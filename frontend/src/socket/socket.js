@@ -1,8 +1,9 @@
 import { io } from "socket.io-client";
 
-const socket = io("https://typearena-production.up.railway.app", {
-  transports: ["websocket"],   
-  withCredentials: true
-});
+const URL = "https://typearena-production.up.railway.app";
 
-export default socket;
+export const socket = io(URL, {
+  transports: ["websocket"],   // 🚀 FORCE WEBSOCKET
+  upgrade: false,              // 🚀 DISABLE POLLING
+  reconnection: true
+});
