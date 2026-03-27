@@ -5,44 +5,28 @@ const cors = require("cors");
 
 const app = express();
 
-// ----------------------
-// ✅ VERY SAFE CORS (works everywhere)
-// ----------------------
+// ✅ Allow all (for now)
 app.use(cors({
-  origin: "*", // 🔥 allow all (for now)
+  origin: "*"
 }));
 
-// ----------------------
-// TEST ROUTE
-// ----------------------
 app.get("/", (req, res) => {
   res.send("Server is running 🚀");
 });
 
-// ----------------------
-// SERVER
-// ----------------------
 const server = http.createServer(app);
 
-// ----------------------
-// SOCKET.IO
-// ----------------------
+// ✅ Socket.io
 const io = new Server(server, {
   cors: {
-    origin: "*", // 🔥 allow all (fixes your issue)
+    origin: "*"
   }
 });
 
-// ----------------------
-// ROOMS
-// ----------------------
 const rooms = {};
 
-// ----------------------
-// SOCKET LOGIC
-// ----------------------
 io.on("connection", (socket) => {
-  console.log("✅ User connected:", socket.id);
+  console.log("User connected:", socket.id);
 
   socket.on("create-room", () => {
     const roomId = Math.random().toString(36).substring(2, 8);
@@ -88,15 +72,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    console.log("❌ Disconnected:", socket.id);
+    console.log("Disconnected:", socket.id);
   });
 });
 
-// ----------------------
-// PORT (RAILWAY SAFE)
-// ----------------------
+// ✅ IMPORTANT (Render compatible)
 const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
-  console.log("🔥 Server running on port", PORT);
+  console.log("Server running on port", PORT);
 });
