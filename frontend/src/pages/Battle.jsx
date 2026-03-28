@@ -14,8 +14,8 @@ function Battle() {
   const [countdown, setCountdown] = useState(null);
 
   const [input, setInput] = useState("");
-  const [myProgress, setMyProgress] = useState(0);
-  const [opponentProgress, setOpponentProgress] = useState(0);
+  const [, setMyProgress] = useState(0);
+  const [, setOpponentProgress] = useState(0);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [spans, setSpans] = useState([]);
@@ -106,7 +106,7 @@ function Battle() {
       socket.off("opponent-progress");
       socket.off("opponent-finished");
     };
-  }, []);
+  }, [startCountdown, urlRoomId]);
 
   // ----------------------
   // TIMER
@@ -296,7 +296,7 @@ function Battle() {
         </div>
       )}
 
-      {battleStarted && (
+      {battleStarted && !winner && (
         <div className="race-area">
 
           <h2>Time Left: {timeLeft}s</h2>
@@ -310,24 +310,23 @@ function Battle() {
             onChange={handleTyping}
             placeholder="Start typing..."
             autoFocus
-            disabled={!!winner}
           />
 
-          {!winner && <h3>WPM: {wpm}</h3>}
+          <h3>WPM: {wpm}</h3>
 
-          {winner && (
-            <div className="result">
-              <h2>Result</h2>
+        </div>
+      )}
 
-              <p>Winner: {winner}</p>
-              <p>WPM: {wpm}</p>
-              <p>Accuracy: {accuracy}%</p>
-              <p>Mistakes: {totalCharsTyped - correctChars}</p>
+      {battleStarted && winner && (
+        <div className="result">
+          <h2>Result</h2>
 
-              <button onClick={() => window.location.reload()}>Play Again</button>
-            </div>
-          )}
+          <p>Winner: {winner}</p>
+          <p>WPM: {wpm}</p>
+          <p>Accuracy: {accuracy}%</p>
+          <p>Mistakes: {totalCharsTyped - correctChars}</p>
 
+          <button onClick={() => window.location.reload()}>Play Again</button>
         </div>
       )}
 
