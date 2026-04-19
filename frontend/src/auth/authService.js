@@ -5,6 +5,7 @@ import {
   signInWithPopup,
   updateProfile,
 } from "firebase/auth";
+
 import {
   doc,
   getDoc,
@@ -13,6 +14,7 @@ import {
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
+
 import { auth, db } from "../firebase";
 
 const provider = new GoogleAuthProvider();
@@ -25,6 +27,11 @@ function getProfileRef(uid) {
   return doc(db, "users", uid);
 }
 
+function getTodayDate() {
+  return new Date().toISOString().split("T")[0];
+}
+
+
 async function ensureUserProfileDocument(user) {
   if (!user?.uid) return null;
 
@@ -35,10 +42,10 @@ async function ensureUserProfileDocument(user) {
     const profile = {
       username: getDefaultUsername(user),
       email: user.email || "",
-      wpm: 0,
-      bestWpm: 0,
+      wpm: 0, 
       battlesPlayed: 0,
       streak: 0,
+      lastActiveDate: null,
       socialLinks: {},
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -51,15 +58,52 @@ async function ensureUserProfileDocument(user) {
   return snapshot.data();
 }
 
+
+export async function updateUserStreak(uid) {
+  if (!uid) return;
+
+  const ref = getProfileRef(uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) return;
+
+  const data = snap.data();
+  const today = getTodayDate();
+
+  if (data.lastActiveDate === today) return;
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+  let newStreak = 1;
+
+  if (data.lastActiveDate === yesterdayStr) {
+    newStreak = (data.streak || 0) + 1;
+  }
+
+  await setDoc(
+    ref,
+    {
+      streak: newStreak,
+      lastActiveDate: today,
+      updatedAt: serverTimestamp(),
+    },
+    { merge: true }
+  );
+}
+
 export async function signInWithGoogle() {
   const result = await signInWithPopup(auth, provider);
   await ensureUserProfileDocument(result.user);
+  await updateUserStreak(result.user.uid);
   return result.user;
 }
 
 export async function signInWithEmail(email, password) {
   const result = await signInWithEmailAndPassword(auth, email, password);
   await ensureUserProfileDocument(result.user);
+  await updateUserStreak(result.user.uid);
   return result.user;
 }
 
@@ -68,6 +112,7 @@ export async function signUpWithEmail(email, password) {
   const username = getDefaultUsername(result.user);
 
   await updateProfile(result.user, { displayName: username });
+
   await ensureUserProfileDocument(result.user);
 
   await setDoc(
@@ -76,9 +121,9 @@ export async function signUpWithEmail(email, password) {
       username,
       email: result.user.email || email,
       wpm: 0,
-      bestWpm: 0,
       battlesPlayed: 0,
-      streak: 0,
+      streak: 1,
+      lastActiveDate: getTodayDate(),
       socialLinks: {},
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -93,10 +138,9 @@ export async function ensureUserProfile(user) {
   return ensureUserProfileDocument(user);
 }
 
+
 export function subscribeToUserProfile(uid, onChange) {
-  if (!uid) {
-    return () => {};
-  }
+  if (!uid) return () => {};
 
   const ref = getProfileRef(uid);
 
@@ -112,6 +156,7 @@ export function subscribeToUserProfile(uid, onChange) {
   );
 }
 
+
 export async function updateUserProfile(uid, updates) {
   if (!uid) return;
 
@@ -125,24 +170,30 @@ export async function updateUserProfile(uid, updates) {
   );
 }
 
+
 export async function recordPracticeResult(uid, wpm) {
   if (!uid) return;
 
   const profileRef = getProfileRef(uid);
   const snapshot = await getDoc(profileRef);
-  const currentBest = Number(snapshot.data()?.bestWpm || 0);
+
+  const currentBest = Number(snapshot.data()?.wpm || 0);
   const nextWpm = Number.isFinite(Number(wpm)) ? Number(wpm) : 0;
+
+  const newBest = Math.max(currentBest, nextWpm);
 
   await setDoc(
     profileRef,
     {
-      wpm: nextWpm,
-      bestWpm: Math.max(currentBest, nextWpm),
+      wpm: newBest,
       updatedAt: serverTimestamp(),
     },
     { merge: true }
   );
+
+  await updateUserStreak(uid);
 }
+
 
 export async function recordBattleResult(uid, wpm) {
   if (!uid) return;
@@ -158,4 +209,6 @@ export async function recordBattleResult(uid, wpm) {
     },
     { merge: true }
   );
+
+  await updateUserStreak(uid);
 }
