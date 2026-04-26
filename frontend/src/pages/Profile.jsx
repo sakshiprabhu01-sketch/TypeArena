@@ -8,20 +8,25 @@ import { subscribeToUserProfile, updateUserProfile } from "../auth/authService";
 
 const defaultProfile = {
   username: "Guest",
-  wpm: 0,
+  bestWpm: 0, 
   battlesPlayed: 0,
   streak: 0,
-  socialLinks: {},
+
 };
 
 function normalizeProfile(profileData, user) {
   return {
     username:
-      profileData?.username || user?.displayName || user?.email?.split("@")[0] || "User",
-    wpm: Number(profileData?.wpm || 0),
+      profileData?.username ||
+      user?.displayName ||
+      user?.email?.split("@")[0] ||
+      "User",
+
+    bestWpm: Number(profileData?.bestWpm || 0), // 🔥 changed
+
     battlesPlayed: Number(profileData?.battlesPlayed || 0),
     streak: Number(profileData?.streak || 0),
-    socialLinks: profileData?.socialLinks || {},
+    
   };
 }
 
@@ -54,7 +59,6 @@ export default function Profile() {
         if (isEditing) {
           return currentDraft;
         }
-
         return nextProfile;
       });
     });
@@ -97,7 +101,9 @@ export default function Profile() {
       <ThemeToggle />
       <div className="profile-card">
         <h1>Player Profile</h1>
-        <p className="subtitle">Track your progress and jump back into the arena.</p>
+        <p className="subtitle">
+          Track your progress and jump back into the arena.
+        </p>
 
         <div className="profile-grid">
           <div className="profile-item">
@@ -120,10 +126,11 @@ export default function Profile() {
             )}
           </div>
 
+         
           <div className="profile-item">
-            <span className="label">WPM</span>
-            <span className="value">{displayProfile.wpm}</span>
-            <span className="label">Updated from Practice mode</span>
+            <span className="label">Best WPM</span>
+            <span className="value">{displayProfile.bestWpm}</span>
+            <span className="label">Your highest typing speed</span>
           </div>
 
           <div className="profile-item">
@@ -135,7 +142,6 @@ export default function Profile() {
           <div className="profile-item">
             <span className="label">Streak</span>
             <span className="value">{displayProfile.streak || "-"}</span>
-            
           </div>
         </div>
 
@@ -165,7 +171,11 @@ export default function Profile() {
           </div>
         )}
 
-        <button type="button" className="back-btn" onClick={() => navigate("/")}>
+        <button
+          type="button"
+          className="back-btn"
+          onClick={() => navigate("/")}
+        >
           Back To Home
         </button>
       </div>

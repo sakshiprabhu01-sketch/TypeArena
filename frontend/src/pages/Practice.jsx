@@ -6,29 +6,9 @@ import { auth } from "../firebase";
 import { recordPracticeResult } from "../auth/authService";
 
 const wordList = [
-  "time",
-  "people",
-  "world",
-  "life",
-  "day",
-  "practice",
-  "typing",
-  "speed",
-  "focus",
-  "skill",
-  "give",
-  "fun",
-  "which",
-  "what",
-  "know",
-  "learn",
-  "improve",
-  "keyboard",
-  "accuracy",
-  "game",
-  "the",
-  "her",
-  "because",
+  "time","people","world","life","day","practice","typing","speed","focus",
+  "skill","give","fun","which","what","know","learn","improve",
+  "keyboard","accuracy","game","the","her","because",
 ];
 
 function generateText(wordCount = 80) {
@@ -60,7 +40,6 @@ export default function Practice() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -76,7 +55,6 @@ export default function Practice() {
     resultSavedRef.current = false;
 
     indexRef.current = 0;
-
     setTime(60);
 
     setTimeout(() => {
@@ -144,14 +122,16 @@ export default function Practice() {
   const accuracy =
     totalTyped === 0 ? 0 : Math.round((correct / totalTyped) * 100);
 
+ 
   useEffect(() => {
     if (!finished || !user || resultSavedRef.current) return;
 
     resultSavedRef.current = true;
-    recordPracticeResult(user.uid, wpm).catch((error) => {
+
+    recordPracticeResult(user.uid, wpm, accuracy).catch((error) => {
       console.error("Unable to save practice result", error);
     });
-  }, [finished, user, wpm]);
+  }, [finished, user, wpm, accuracy]);
 
   return (
     <div className="practice-page">

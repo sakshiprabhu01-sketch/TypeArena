@@ -31,7 +31,6 @@ function getTodayDate() {
   return new Date().toISOString().split("T")[0];
 }
 
-
 async function ensureUserProfileDocument(user) {
   if (!user?.uid) return null;
 
@@ -42,11 +41,17 @@ async function ensureUserProfileDocument(user) {
     const profile = {
       username: getDefaultUsername(user),
       email: user.email || "",
-      wpm: 0, 
+
+      wpm: 0,
+      bestWpm: 0,
+      bestAccuracy: 0,
+      score: 0,
+
       battlesPlayed: 0,
       streak: 0,
       lastActiveDate: null,
-      socialLinks: {},
+  
+
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
@@ -57,7 +62,6 @@ async function ensureUserProfileDocument(user) {
 
   return snapshot.data();
 }
-
 
 export async function updateUserStreak(uid) {
   if (!uid) return;
@@ -120,11 +124,18 @@ export async function signUpWithEmail(email, password) {
     {
       username,
       email: result.user.email || email,
+
+      
       wpm: 0,
+      bestWpm: 0,
+      bestAccuracy: 0,
+      score: 0,
+
       battlesPlayed: 0,
       streak: 1,
       lastActiveDate: getTodayDate(),
-      socialLinks: {},
+      
+
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     },
@@ -137,7 +148,6 @@ export async function signUpWithEmail(email, password) {
 export async function ensureUserProfile(user) {
   return ensureUserProfileDocument(user);
 }
-
 
 export function subscribeToUserProfile(uid, onChange) {
   if (!uid) return () => {};
@@ -156,7 +166,6 @@ export function subscribeToUserProfile(uid, onChange) {
   );
 }
 
-
 export async function updateUserProfile(uid, updates) {
   if (!uid) return;
 
@@ -171,21 +180,41 @@ export async function updateUserProfile(uid, updates) {
 }
 
 
-export async function recordPracticeResult(uid, wpm) {
+export async function recordPracticeResult(uid, wpm, accuracy) {
   if (!uid) return;
 
   const profileRef = getProfileRef(uid);
   const snapshot = await getDoc(profileRef);
 
-  const currentBest = Number(snapshot.data()?.wpm || 0);
-  const nextWpm = Number.isFinite(Number(wpm)) ? Number(wpm) : 0;
+  if (!snapshot.exists()) return;
 
-  const newBest = Math.max(currentBest, nextWpm);
+  const data = snapshot.data();
+
+  const prevBestWpm = Number(data.bestWpm || 0);
+  const prevBestAccuracy = Number(data.bestAccuracy || 0);
+
+  const currentWpm = Number(wpm) || 0;
+  const currentAccuracy = Number(accuracy) || 0;
+
+  let newBestWpm = prevBestWpm;
+  let newBestAccuracy = prevBestAccuracy;
+
+  
+  if (currentWpm > prevBestWpm) {
+    newBestWpm = currentWpm;
+    newBestAccuracy = currentAccuracy;
+  }
+
+
+  const newScore = newBestWpm * (newBestAccuracy / 100);
 
   await setDoc(
     profileRef,
     {
-      wpm: newBest,
+      wpm: currentWpm, 
+      bestWpm: newBestWpm,
+      bestAccuracy: newBestAccuracy,
+      score: newScore,
       updatedAt: serverTimestamp(),
     },
     { merge: true }
@@ -194,11 +223,10 @@ export async function recordPracticeResult(uid, wpm) {
   await updateUserStreak(uid);
 }
 
-
 export async function recordBattleResult(uid, wpm) {
   if (!uid) return;
 
-  const nextWpm = Number.isFinite(Number(wpm)) ? Number(wpm) : 0;
+  const nextWpm = Number(wpm) || 0;
 
   await setDoc(
     getProfileRef(uid),
